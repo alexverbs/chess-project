@@ -1,0 +1,21 @@
+.tile{
+    width: 75px;
+    height: 75px;
+    display: grid;
+    place-content: center;
+
+}
+
+.black-tile{
+    background-color: rgb(43, 2, 55);
+
+}
+
+.white-tile{
+    background-color: #f0d9b5;
+}
+
+.tile img{
+    width: 60x;
+    height: 60px;
+}
