@@ -21,6 +21,31 @@ for(let i = 0; i < 8; i++){
     pieces.push({image: 'assets/black-pawn.png', x: i, y: 6});
 }
 
+for (let i = 0; i < 8; i+=7)
+{
+    pieces.push({image: 'assets/white-rook.png', x: i, y: 0});
+    pieces.push({image: 'assets/black-rook.png', x: i, y: 7});
+    
+}
+
+for (let i = 1; i < 7; i+=5)
+{
+    pieces.push({image: 'assets/white-knight.png', x: i, y: 0});
+    pieces.push({image: 'assets/black-knight.png', x: i, y: 7});
+}
+
+for (let i = 2; i < 6; i+=3)
+{
+    pieces.push({image: 'assets/white-bishop.png', x: i, y: 0});
+    pieces.push({image: 'assets/black-bishop.png', x: i, y: 7});
+}
+
+pieces.push({image: 'assets/white-queen.png', x: 3, y: 0});
+pieces.push({image: 'assets/black-queen.png', x: 3, y: 7});
+
+pieces.push({image: 'assets/white-king.png', x: 4, y: 0});
+pieces.push({image: 'assets/black-king.png', x: 4, y: 7});
+
 export default function Chessboard()
 {
     let board = [];
