@@ -3,38 +3,56 @@ import { act } from 'react-dom/test-utils';
 import './Chessboard.css';
 import Tile from './Tile';
 import { useEffect, useRef, useState } from 'react';
+import Rule from './Rules';
 
 
 const horizontalAxis = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 const verticalAxis = ['1', '2', '3', '4', '5', '6', '7', '8'];
 
-interface Piece{
+export interface Piece{
     image: string;
     x: number;
     y: number;
+    type: PieceType;
+    team: TeamType;
+}
+
+export enum PieceType{
+    Pawn,
+    Rook,
+    Knight,
+    Bishop,
+    Queen,
+    King 
+}
+
+export enum TeamType{
+   opponent,
+   our 
 }
 
 const initialBoardState: Piece[] = [];
 
 for (let p=0; p<2; p++)
     {
-        const type = p === 0 ? 'white' : 'black';
-        const y = p === 0 ? 0 : 7;
+        const teamType = p === 0 ? TeamType.our: TeamType.opponent;
+        const type = (teamType === TeamType.our) ? 'white' : 'black';
+        const y = (teamType === TeamType.our) ? 0 : 7;
 
-        initialBoardState.push({image: `assets/${type}-rook.png`, x: 0, y});
-        initialBoardState.push({image: `assets/${type}-rook.png`, x: 7, y});
-        initialBoardState.push({image: `assets/${type}-knight.png`, x: 1, y});
-        initialBoardState.push({image: `assets/${type}-knight.png`, x: 6, y});
-        initialBoardState.push({image: `assets/${type}-bishop.png`, x: 2, y});
-        initialBoardState.push({image: `assets/${type}-bishop.png`, x: 5, y});
-        initialBoardState.push({image: `assets/${type}-queen.png`, x: 3, y});
-        initialBoardState.push({image: `assets/${type}-king.png`, x: 4, y});
+        initialBoardState.push({image: `assets/${type}-rook.png`, x: 0, y, type: PieceType.Rook, team: teamType});
+        initialBoardState.push({image: `assets/${type}-rook.png`, x: 7, y, type: PieceType.Rook, team: teamType});
+        initialBoardState.push({image: `assets/${type}-knight.png`, x: 1, y, type: PieceType.Knight, team: teamType});
+        initialBoardState.push({image: `assets/${type}-knight.png`, x: 6, y, type: PieceType.Knight, team: teamType});
+        initialBoardState.push({image: `assets/${type}-bishop.png`, x: 2, y, type: PieceType.Bishop, team: teamType});
+        initialBoardState.push({image: `assets/${type}-bishop.png`, x: 5, y, type: PieceType.Bishop, team: teamType});
+        initialBoardState.push({image: `assets/${type}-queen.png`, x: 3, y, type: PieceType.Queen, team: teamType});
+        initialBoardState.push({image: `assets/${type}-king.png`, x: 4, y, type: PieceType.King, team: teamType});
         
     }
 
 for(let i = 0; i < 8; i++){
-    initialBoardState.push({image: 'assets/white-pawn.png', x: i, y: 1});
-    initialBoardState.push({image: 'assets/black-pawn.png', x: i, y: 6});
+    initialBoardState.push({image: 'assets/white-pawn.png', x: i, y: 1, type: PieceType.Pawn, team: TeamType.our});
+    initialBoardState.push({image: 'assets/black-pawn.png', x: i, y: 6, type: PieceType.Pawn, team: TeamType.opponent});
 }
 
 export default function Chessboard()
@@ -44,6 +62,7 @@ export default function Chessboard()
     const [gridX, setGridX] = useState(0);
     const [gridY, setGridY] = useState(0);
     const chessboardref = useRef<HTMLDivElement>(null);
+    const rule = new Rule();
 
     function grabPiece(e: React.MouseEvent)
     {
@@ -111,11 +130,23 @@ export default function Chessboard()
             const x = Math.floor((e.clientX - chessboard.offsetLeft) / 75);
             const y = Math.abs(Math.ceil((e.clientY - chessboard.offsetTop - 600) / 75));
 
+
+
+            //moves piece
             setPieces((value) => {
                     const pieces = value.map(p => {
                     if (p.x === gridX && p.y === gridY){
-                        p.x = x;
-                        p.y = y;
+                        const validMove = rule.isValidMove(gridX, gridY, x, y, p.type, p.team, value);
+
+                        if (validMove){
+                            p.x = x;
+                            p.y = y;
+                        }
+                        else{
+                            activePiece.style.position = 'relative';
+                            activePiece.style.removeProperty('top');
+                            activePiece.style.removeProperty('left');
+                        }
                     }
                         return p;
                 });
