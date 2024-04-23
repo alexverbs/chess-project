@@ -15,6 +15,7 @@ export interface Piece{
     y: number;
     type: PieceType;
     team: TeamType;
+    enPassant?: boolean;
 }
 
 export enum PieceType{
@@ -136,15 +137,51 @@ export default function Chessboard()
             if (currentPiece){
                 const isValidMove = rule.isValidMove(gridX, gridY, x, y, currentPiece.type, currentPiece.team, pieces);
 
-                if (isValidMove){
+                const isEnPassant = rule.isEnPassantMove(gridX, gridY, x, y, currentPiece.type, currentPiece.team, pieces);
+
+                const pawnDirection = (currentPiece.team === TeamType.our) ? 1 : -1;
+
+                if(isEnPassant){
+                    const updatedPieces = pieces.reduce((results,piece) => {
+                        if (piece.x === gridX && piece.y === gridY){
+                            piece.enPassant = false;
+                            piece.x = x;
+                            piece.y = y;
+                            results.push(piece);
+                        }
+                        else if (piece.x === x && piece.y === y - 1){
+                            results.push();
+                        }
+                        else if (!(piece.x === x && piece.y === y - pawnDirection)){
+                            if(piece.type === PieceType.Pawn){
+                                piece.enPassant = false;
+                            }
+                            results.push(piece);
+                        }
+                    return results;
+                    }, [] as Piece[]);
+
+                    setPieces(updatedPieces);
+                }
+                else if (isValidMove){
                     //move piece to new position
 
                     const updatedPieces = pieces.reduce((results,piece) => {
                         if (piece.x === gridX && piece.y === gridY){
+                            if((gridY - y === 2 || gridY - y === -2) && piece.type === PieceType.Pawn){
+                                piece.enPassant = true;
+                            }
+                            else{
+                                piece.enPassant = false;
+                            }
                             piece.x = x;
                             piece.y = y;
                             results.push(piece);
+
                         } else if (!(piece.x === x && piece.y === y)){
+                            if(piece.type === PieceType.Pawn){
+                                piece.enPassant = false;
+                            }
                             results.push(piece);
                         }
                         
